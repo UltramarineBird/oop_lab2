@@ -1,0 +1,132 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
+
+using namespace std;
+
+class Shop;
+
+class Product {
+private:
+	string product;
+	int quantity = 0;
+	friend class Shop;
+public:
+
+	Product() {
+		product = "Сыр";
+		quantity = 12;
+	}
+
+	Product(string p, int q) {
+		product = p;
+		quantity += q;
+	}
+
+	~Product() {
+		cout << "Удалён продукт: " << product << "\t" << "количество: " << quantity << endl;
+	}
+
+	void print() {
+		cout << "Товар: " << product << "\tколичество " << quantity << " штук" << endl;
+	}
+
+};
+
+class Shop {
+private:
+	vector <unique_ptr <Product>> products;
+public:
+	Shop() {
+		cout << "Создан магазин" << endl;
+	}
+
+	Shop(string p, int q) {
+		products.push_back(make_unique <Product>(p, q));
+	}
+
+    ~Shop() {
+		cout << "Магазин закрыт" << endl;
+    }
+
+	void print_shop() {
+		if (products.size() == 0) {
+			cout << "Магазин пуст" << endl;
+			return;
+		}
+		for (int i = 0; i < products.size(); i++) {
+			cout << i + 1 << ". ";
+			products[i]->print();
+		}
+	}
+
+	void add_product() {
+		string product;
+		int quantity;
+		cout << "Введите имя товара: ";
+		getline(cin, product);
+		cout << "\nВведите количество товара: ";
+		cin >> quantity;
+		products.push_back(make_unique <Product>(product, quantity));
+	}
+
+	void add_default() {
+		products.push_back(make_unique <Product>());
+	}
+
+	void delete_product() {
+		if (products.empty()) {
+			cout << "\nТоваров нет\n";
+			return;
+		}
+
+		cout << "Введите номер товара для удаления:\n";
+		int index;
+		cin >> index;
+		index--;
+
+		if (index < products.size()) {
+			products.erase(products.begin() + index);
+		}
+		else {
+			cout << "Ошибка: такого товара нет\n";
+		}
+	}
+
+	
+};
+
+int main() {
+	setlocale(LC_ALL, "Russian");
+	Shop shop;
+
+	char p = '0';
+
+	while (p != '5') {
+		cout << "\nВыберите :\n1. посмотреть товары\n2. добавить новый товар\n3. добавить товар по умолчанию\n4. удалить товар\n5. конец\n\n";
+		cin >> p;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		switch (p) {
+		case '1':
+			shop.print_shop();
+			break;
+		case '2':
+			shop.add_product();
+			break;
+		case '3':
+			shop.add_default();
+			break;
+		case '4':
+			shop.delete_product();
+			break;
+		case '5':
+			cout << "\nконец\n";
+			break;
+		default:
+			cout << "Ошибка: нет такого действия \n";
+		}
+	}
+
+	return 0;
+}
